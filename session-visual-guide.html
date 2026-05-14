@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Session Visual Guide — Azure SQL</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --azure: #0078d4;
+      --azure-dark: #004f8f;
+      --green: #107c10;
+      --red: #d13438;
+      --amber: #c7840a;
+      --bg: #f3f6fa;
+      --card-bg: #ffffff;
+      --text: #1a1a2e;
+      --muted: #666;
+      --border: #e0e7ef;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* ── TOP HERO ─────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #0052a5 0%, #0078d4 60%, #00b4d8 100%);
+      color: white;
+      text-align: center;
+      padding: 3rem 1.5rem 2.5rem;
+    }
+    .hero .tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 20px;
+      padding: 4px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 1.1rem;
+    }
+    .hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 800; line-height: 1.25; }
+    .hero p  { font-size: 1rem; margin-top: 0.7rem; opacity: 0.85; }
+
+    /* ── SECTION ──────────────────────────── */
+    section { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    section h2 {
+      font-size: 1.3rem; font-weight: 800; color: var(--azure-dark);
+      margin-bottom: 1.4rem; display: flex; align-items: center; gap: 10px;
+    }
+
+    /* ── PROBLEM vs SOLUTION CARDS ─────────── */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media(max-width: 640px) { .compare-grid { grid-template-columns: 1fr; } }
+
+    .prob-card {
+      background: #fff5f5;
+      border: 1.5px solid #ffb3b3;
+      border-radius: 14px;
+      padding: 1.2rem;
+    }
+    .sol-card {
+      background: #f0faf0;
+      border: 1.5px solid #87cf87;
+      border-radius: 14px;
+      padding: 1.2rem;
+    }
+    .card-title {
+      font-size: 13px; font-weight: 800; letter-spacing: 0.8px;
+      text-transform: uppercase; margin-bottom: 0.9rem;
+    }
+    .prob-card .card-title { color: var(--red); }
+    .sol-card  .card-title { color: var(--green); }
+
+    .item {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 14px; line-height: 1.5; margin-bottom: 10px; color: #444;
+    }
+    .item .ico { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── ARCHITECTURE FLOW ─────────────────── */
+    .flow-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+    }
+    .flow-box {
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      min-width: 110px;
+    }
+    .flow-box.azure-box { background: #e8f1fb; border-color: #90c2f0; color: #0052a5; }
+    .arrow { font-size: 1.3rem; color: #999; }
+
+    /* ── CODE BLOCK ────────────────────────── */
+    .code-block {
+      background: #1e1e2e;
+      border-radius: 12px;
+      padding: 1.3rem 1.5rem;
+      overflow-x: auto;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #cdd6f4;
+      margin: 0.8rem 0;
+    }
+    .kw  { color: #89b4fa; font-weight: 700; }
+    .fn  { color: #cba6f7; }
+    .str { color: #a6e3a1; }
+    .cmt { color: #6c7086; font-style: italic; }
+    .var { color: #f38ba8; }
+
+    .code-label {
+      font-size: 12px; font-weight: 700; color: var(--muted);
+      letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px;
+    }
+
+    /* ── STEP CARDS ────────────────────────── */
+    .steps { display: flex; flex-direction: column; gap: 14px; }
+    .step {
+      background: white; border-radius: 13px;
+      border: 1.5px solid var(--border);
+      padding: 1.1rem 1.3rem;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .step-num {
+      background: var(--azure); color: white;
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; flex-shrink: 0;
+    }
+    .step-body h3 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+    .step-body p  { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* ── SQL TABLE VISUAL ──────────────────── */
+    .sql-table {
+      background: white; border-radius: 12px; overflow: hidden;
+      border: 1.5px solid #c0d8f0; width: 100%; margin: 1rem 0;
+    }
+    .sql-table thead th {
+      background: var(--azure); color: white;
+      padding: 10px 14px; font-size: 13px; text-align: left;
+    }
+    .sql-table tbody td {
+      padding: 9px 14px; font-size: 13px;
+      border-bottom: 1px solid #eef1f5; color: #333;
+    }
+    .sql-table tbody tr:nth-child(even) { background: #f5f9ff; }
+
+    /* ── AI SECTION ────────────────────────── */
+    .ai-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+    }
+    .ai-card {
+      background: white; border-radius: 13px;
+      border: 1.5px solid var(--border);
+      padding: 1.1rem 1rem; text-align: center;
+    }
+    .ai-card .ico { font-size: 2rem; margin-bottom: 0.5rem; }
+    .ai-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .ai-card p  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* ── DIVIDER ──────────────────────────── */
+    .section-divider {
+      border: none; border-top: 2px dashed #d0dae8;
+      max-width: 860px; margin: 0 auto;
+    }
+
+    /* ── FOOTER ───────────────────────────── */
+    footer {
+      background: #1a1a2e; color: #aaa;
+      text-align: center; padding: 2rem;
+      font-size: 13px;
+    }
+    footer strong { color: white; }
+  </style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="tag">☁️ Session Visual Guide</div>
+  <h1>From Localhost Chaos<br/>to Cloud Databases with Azure SQL</h1>
+  <p>A beginner-friendly walkthrough for student developers</p>
+</div>
+
+<!-- ── PART 1: THE PROBLEM ── -->
+<section>
+  <h2>😤 The Problem vs ✅ The Solution</h2>
+  <div class="compare-grid">
+    <div class="prob-card">
+      <div class="card-title">❌ What students do today</div>
+      <div class="item"><span class="ico">📱</span> Sharing .sql files over WhatsApp</div>
+      <div class="item"><span class="ico">💻</span> "Works on my machine but not yours"</div>
+      <div class="item"><span class="ico">🗄️</span> Different MySQL versions, different errors</div>
+      <div class="item"><span class="ico">😭</span> Accidentally deleted the database — work lost!</div>
+      <div class="item"><span class="ico">🔒</span> Can only use the app on one specific laptop</div>
+      <div class="item"><span class="ico">🧩</span> XAMPP config errors that take hours to fix</div>
+    </div>
+    <div class="sol-card">
+      <div class="card-title">✅ With Azure SQL</div>
+      <div class="item"><span class="ico">🌍</span> Everyone connects to the same database URL</div>
+      <div class="item"><span class="ico">📱</span> Works from any device, anywhere, any OS</div>
+      <div class="item"><span class="ico">🔄</span> One version — no config mismatch ever</div>
+      <div class="item"><span class="ico">💾</span> Automatic backups — data never lost</div>
+      <div class="item"><span class="ico">🤝</span> Whole team works on live data simultaneously</div>
+      <div class="item"><span class="ico">⚡</span> No XAMPP, no local server — just connect!</div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider"/>
+
+<!-- ── PART 2: HOW IT WORKS ── -->
+<section>
+  <h2>🏗️ How the App Architecture Works</h2>
+  <div class="flow-row">
+    <div class="flow-box">🌐<br/>Browser<br/><small style="color:#999;font-weight:400">HTML Form</small></div>
+    <div class="arrow">→</div>
+    <div class="flow-box">⚙️<br/>PHP Server<br/><small style="color:#999;font-weight:400">register.php</small></div>
+    <div class="arrow">→</div>
+    <div class="flow-box azure-box">☁️<br/>Azure SQL<br/><small>Microsoft Cloud</small></div>
+  </div>
+  <div class="flow-row" style="margin-top:0.5rem">
+    <div class="flow-box">📱<br/>Student A<br/><small style="color:#999;font-weight:400">Colombo</small></div>
+    <div class="arrow">↘</div>
+    <div class="flow-box azure-box" style="min-width:150px">☁️<br/>Azure SQL DB<br/><small>Same Database!</small></div>
+    <div class="arrow">↙</div>
+    <div class="flow-box">💻<br/>Student B<br/><small style="color:#999;font-weight:400">Kandy</small></div>
+  </div>
+  <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:0.7rem">
+    ✨ Both students read &amp; write to the <strong>exact same database</strong> — no syncing, no sharing files!
+  </p>
+</section>
+
+<hr class="section-divider"/>
+
+<!-- ── PART 3: CODE WALKTHROUGH ── -->
+<section>
+  <h2>💻 Key Code Explained (PHP + Azure SQL)</h2>
+
+  <div class="code-label">1. Connect to Azure SQL (db_config.php)</div>
+  <div class="code-block">
+<span class="cmt">// Your Azure SQL server address (from Azure Portal)</span><br/>
+<span class="var">$server</span> = <span class="str">"yourserver.database.windows.net"</span>;<br/>
+<br/>
+<span class="var">$options</span> = [<br/>
+&nbsp;&nbsp;<span class="str">"Database"</span> =&gt; <span class="str">"EventRegistrationDB"</span>,<br/>
+&nbsp;&nbsp;<span class="str">"Uid"</span>      =&gt; <span class="str">"admin_user"</span>,<br/>
+&nbsp;&nbsp;<span class="str">"PWD"</span>      =&gt; <span class="str">"YourPassword!"</span>,<br/>
+&nbsp;&nbsp;<span class="str">"Encrypt"</span>  =&gt; <span class="kw">true</span>, <span class="cmt">// Azure always uses secure connection</span><br/>
+];<br/>
+<br/>
+<span class="var">$conn</span> = <span class="fn">sqlsrv_connect</span>(<span class="var">$server</span>, <span class="var">$options</span>);
+  </div>
+
+  <div class="code-label" style="margin-top:1.2rem">2. Insert Data Safely (register.php)</div>
+  <div class="code-block">
+<span class="cmt">// ✅ Parameterized query — PREVENTS SQL Injection attacks!</span><br/>
+<span class="var">$sql</span> = <span class="str">"INSERT INTO registrations<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(full_name, email, university)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUES (?, ?, ?)"</span>;<br/>
+<br/>
+<span class="cmt">// The ? placeholders get filled safely — not by string joining!</span><br/>
+<span class="var">$params</span> = [<span class="var">$full_name</span>, <span class="var">$email</span>, <span class="var">$university</span>];<br/>
+<span class="fn">sqlsrv_query</span>(<span class="var">$conn</span>, <span class="var">$sql</span>, <span class="var">$params</span>);
+  </div>
+
+  <div class="code-label" style="margin-top:1.2rem">3. Read Data Live (registrations.php)</div>
+  <div class="code-block">
+<span class="var">$sql</span>  = <span class="str">"SELECT * FROM registrations ORDER BY registered_at DESC"</span>;<br/>
+<span class="var">$rows</span> = <span class="fn">sqlsrv_query</span>(<span class="var">$conn</span>, <span class="var">$sql</span>);<br/>
+<br/>
+<span class="kw">while</span> (<span class="var">$row</span> = <span class="fn">sqlsrv_fetch_array</span>(<span class="var">$rows</span>, SQLSRV_FETCH_ASSOC)) {<br/>
+&nbsp;&nbsp;<span class="kw">echo</span> <span class="var">$row</span>[<span class="str">'full_name'</span>] . <span class="str">" — "</span> . <span class="var">$row</span>[<span class="str">'university'</span>];<br/>
+}
+  </div>
+</section>
+
+<hr class="section-divider"/>
+
+<!-- ── PART 4: DATABASE TABLE ── -->
+<section>
+  <h2>🗄️ What the Database Table Looks Like</h2>
+  <p style="font-size:14px;color:var(--muted);margin-bottom:1rem">
+    Every time someone submits the form, a new row is added to this table in Azure SQL:
+  </p>
+  <div style="overflow-x:auto">
+    <table class="sql-table">
+      <thead>
+        <tr>
+          <th>id</th>
+          <th>full_name</th>
+          <th>email</th>
+          <th>university</th>
+          <th>year_of_study</th>
+          <th>registered_at</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Kasun Perera</td>
+          <td>kasun@gmail.com</td>
+          <td>Univ. of Colombo</td>
+          <td>2nd Year</td>
+          <td>2025-01-15 09:31</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Nimasha Silva</td>
+          <td>nimasha@uom.lk</td>
+          <td>Univ. of Moratuwa</td>
+          <td>3rd Year</td>
+          <td>2025-01-15 09:34</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Dilan Fernando</td>
+          <td>dilan@sliit.lk</td>
+          <td>SLIIT</td>
+          <td>1st Year</td>
+          <td>2025-01-15 09:37</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:13px;color:var(--muted);margin-top:0.7rem">
+    ☁️ These rows live in Microsoft's data center — accessible to your whole team 24/7.
+  </p>
+</section>
+
+<hr class="section-divider"/>
+
+<!-- ── PART 5: SETUP STEPS ── -->
+<section>
+  <h2>🔧 Setup Checklist for Students</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>Create Azure SQL Database</h3>
+        <p>Go to portal.azure.com → Create resource → SQL Database → Choose "Basic" pricing (free trial available)</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>Add your IP to Azure Firewall</h3>
+        <p>SQL Server → Networking → "Add your client IP" → Save. This lets your computer connect to Azure.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>Edit db_config.php</h3>
+        <p>Paste your Server Name, Database name, Username, and Password into the config file.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h3>Visit setup.php once</h3>
+        <p>This creates the "registrations" table in your Azure SQL database. Delete setup.php after running!</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h3>Open index.html and register!</h3>
+        <p>Fill the form → check registrations.php → your data is live in the cloud. Share the link with a friend!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider"/>
+
+<!-- ── PART 6: AI FUTURE ── -->
+<section>
+  <h2>🤖 What's Next — Azure AI Foundry Integration</h2>
+  <p style="font-size:14px;color:var(--muted);margin-bottom:1.2rem">
+    Once your data lives in Azure SQL, adding AI-powered features becomes simple:
+  </p>
+  <div class="ai-grid">
+    <div class="ai-card">
+      <div class="ico">💬</div>
+      <h4>Smart Chatbot</h4>
+      <p>"How many 2nd year students registered?" — answered by AI querying your database</p>
+    </div>
+    <div class="ai-card">
+      <div class="ico">📊</div>
+      <h4>Auto Reports</h4>
+      <p>Generate a natural language summary of all registrations with one click</p>
+    </div>
+    <div class="ai-card">
+      <div class="ico">📧</div>
+      <h4>Smart Emails</h4>
+      <p>Auto-write personalized welcome emails for each new registrant using GPT</p>
+    </div>
+    <div class="ai-card">
+      <div class="ico">📈</div>
+      <h4>Analytics</h4>
+      <p>Detect trends: "Which university sent the most students this month?"</p>
+    </div>
+  </div>
+  <div style="background:#f0f4ff;border-radius:12px;padding:1.1rem 1.3rem;margin-top:1.2rem;border-left:4px solid var(--azure)">
+    <strong>💡 Key idea:</strong> Azure SQL is not just a database — it becomes the <em>data foundation</em> 
+    for building intelligent, scalable, industry-ready applications. Cloud first → AI on top!
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <strong>From Localhost Chaos to Cloud Databases with Azure SQL</strong><br/>
+  Session Demo Project · Built with HTML, PHP &amp; Microsoft Azure SQL Database
+</footer>
+
+</body>
+</html>
