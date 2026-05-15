@@ -139,21 +139,14 @@ From the ZIP, pick the **two DLL files** that match your PHP version and Thread 
 
 Copy **both** chosen DLL files into your PHP extensions folder:
 ```
-E:\xampp\php\ext\        ← if XAMPP is on E: drive
-C:\xampp\php\ext\        ← if XAMPP is on C: drive
-```
-
-Example command (XAMPP Shell as Administrator, PHP 8.2 TS):
-```bash
-copy "path\to\php_sqlsrv_82_ts_x64.dll" "E:\xampp\php\ext\"
-copy "path\to\php_pdo_sqlsrv_82_ts_x64.dll" "E:\xampp\php\ext\"
+C:\xampp\php\ext\
 ```
 
 #### 4d — Edit php.ini
 
 Open your XAMPP `php.ini` (path shown in `phpinfo()` → **Loaded Configuration File**):
 ```
-E:\xampp\php\php.ini
+C:\xampp\php\php.ini
 ```
 
 Find the extensions section (search for `extension=php_mysqli`) and add these two lines:
@@ -175,7 +168,7 @@ Run the `.msi` installer → click Next → Next → Finish. No extra configurat
 #### 4f — Restart Apache & Verify
 
 1. In XAMPP Control Panel → **Stop** Apache → **Start** Apache
-2. Create `E:\xampp\htdocs\check.php`:
+2. Create `C:\xampp\htdocs\check.php`:
 ```php
 <?php
 if (function_exists('sqlsrv_connect')) {
